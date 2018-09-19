@@ -11,21 +11,22 @@ class SessionTimeoutPlugin extends AbstractPlugin
    {
       $configuration = $this->getController()->getServiceLocator()->get('config');
       $timeout = $configuration['configuration']['session']['timeout'];
-
-      if($_SESSION['bareos']['rememberme']){
-            return true;
-      }
-
       if($timeout === 0) {
          return true;
       }
 
       else {
-         if($_SESSION['bareos']['idletime'] + $timeout > time()) {
+         if($_SESSION['bareos']['rememberme']){
+            setcookie('bareos_timeout', 0, '2147483647');
+            return true;
+         }
+         else if($_SESSION['bareos']['idletime'] + $timeout > time()) {
             $_SESSION['bareos']['idletime'] = time();
+            setcookie('bareos_timeout', 1, time() + $timeout);
             return true;
          }
          else {
+            setcookie('bareos_timeout', -1, time()-60);
             session_destroy();
             return false;
          }
@@ -34,13 +35,8 @@ class SessionTimeoutPlugin extends AbstractPlugin
 
    public function isValid()
    {
-      if($_SESSION['bareos']['authenticated']) {
-         if($this->timeout()) {
-            return true;
-         }
-         else {
-            return false;
-         }
+       if($_SESSION['bareos']['authenticated'] && $this->timeout() ){
+          return true;
       }
       else {
          return false;
