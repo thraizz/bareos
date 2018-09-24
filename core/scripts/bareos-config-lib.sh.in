@@ -723,6 +723,13 @@ get_database_param()
     return $rc
 }
 
+get_database_address()
+{
+    DEFAULT="${1-}"
+    get_database_param "dbaddress" "$DEFAULT"
+    return $?
+}
+
 get_database_driver()
 {
     DEFAULT="${1-}"

@@ -33,7 +33,7 @@ cd /
 
 
 . @scriptdir@/bareos-config-lib.sh
-
+db_address="${db_address:-`get_database_address 127.0.0.1`}"
 db_name="${db_name:-`get_database_name @db_name@`}"
 db_user="${db_user:-`get_database_user @db_user@`}"
 dir_user=`get_user_dir`
@@ -95,7 +95,7 @@ case ${db_type} in
       #
       # use SQL_ASCII to be able to put any filename into
       # the database even those created with unusual character sets
-      PSQLVERSION=`psql -d template1 -c 'SELECT version()' $* 2>/dev/null | \
+      PSQLVERSION=`psql -d template1 -c 'SELECT version()' -h ${db_address} $* 2>/dev/null | \
                    awk '/PostgreSQL/ { print $2 }' | \
                    cut -d '.' -f 1,2`
 
@@ -120,14 +120,14 @@ case ${db_type} in
             ;;
       esac
 
-      psql -f - -d template1 $* << END-OF-DATA
+      psql -f - -d template1 -h ${db_address} $* << END-OF-DATA
 \set ON_ERROR_STOP on
 CREATE DATABASE ${db_name} $ENCODING TEMPLATE template0;
 ALTER DATABASE ${db_name} SET datestyle TO 'ISO, YMD';
 END-OF-DATA
       retval=$?
 
-      if psql -l ${dbname} | grep " ${db_name}.*SQL_ASCII" >/dev/null; then
+      if psql -l ${dbname} -h ${db_address} $*| grep " ${db_name}.*SQL_ASCII" >/dev/null; then
          echo "Database encoding OK"
       else
          echo " "

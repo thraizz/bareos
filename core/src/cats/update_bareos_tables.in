@@ -28,6 +28,7 @@
 #
 . @scriptdir@/bareos-config-lib.sh
 
+db_address="${db_address:-`get_database_address 127.0.0.1`}"
 db_name="${db_name:-`get_database_name @db_name@`}"
 db_user="${db_user:-`get_database_user @db_user@`}"
 db_version=`get_database_version`
@@ -94,7 +95,7 @@ do
                     sed -n -e 's/^.*VersionId.*: \(.*\)$/\1/p'`
          ;;
       postgresql)
-         DBVERSION=`psql -d ${db_name} -t --pset format=unaligned -c "SELECT MAX(VersionId) FROM Version;" $*`
+         DBVERSION=`psql -d ${db_name} -t --pset format=unaligned -c "SELECT MAX(VersionId) FROM Version;" -h ${db_address} $*`
          ;;
       *)
          echo "Unknown database type ${db_type}"
@@ -168,7 +169,7 @@ do
          retval=$?
          ;;
       postgresql)
-         psql -f ${temp_sql_schema} -d ${db_name} $*
+         psql -f ${temp_sql_schema} -d ${db_name} -h ${db_address} $*
          retval=$?
          ;;
    esac
