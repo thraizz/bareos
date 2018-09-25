@@ -336,27 +336,24 @@ bareos=> <input>\dp</input>
 bareos=>
 \end{commands}
 
-\subsubsection{Example: Remote PostgreSQL Database}
+\subsubsection{Remote PostgreSQL Database}
 \label{catalog-maintenance-remote-psql}
 
 When configuring bareos with a remote database, your first step should be to check the connection from the \bareosDir host into the database.
 A functional connection can be verified by 
 \begin{commands}{Access the remote PostgreSQL database}
 su - postgres
-psql --host (Host name or IP of database server)
+psql --host bareos-database.example.com
 \end{commands}
 With a correct configuration you can access the database, if it fails you need to correct the PostgreSQL servers configuration files.
 
-One way to create the database would be calling the bareos database preparation scripts with the \parameter{--host} parameter,
-as well as adding the database hostname/address as \linkResourceDirective{Dir}{Catalog}{DB Address}. 
-How ever, it is advised to configure the \bareosDir \nameref{DirectorResourceCatalog} and grant the \user{postgres} user access.
+One way to manually create the database would be calling the bareos database preparation scripts with the \parameter{--host} option.
+How ever, it is advised to use the \package{dbconfig-common}. 
+Both methods require you to add the database hostname/address as \linkResourceDirective{Dir}{Catalog}{DB Address}.
 
-As the Unix user \user{postgres} has, by default, no access to the bareos configuration path you need to add it to the \group{bareos} by:
-\begin{commands}{Add the posgres user to bareos user group}
-sudo usermod -aG bareos postgres
-\end{commands}
+## dbconfig Abschnitt
 
-Now, you should set the PostgreSQL server IP as \linkResourceDirective{Dir}{Catalog}{DB Address} in \nameref{DirectorResourceCatalog}.
+Set the PostgreSQL server IP as \linkResourceDirective{Dir}{Catalog}{DB Address} in \nameref{DirectorResourceCatalog}.
 You can also customize other parameters or use the defaults. A quick check should display your recent changes:
 \begin{commands}{Show current database configuration}
 <command> </command><parameter>/usr/sbin/bareos-dbcheck -B</parameter>
@@ -364,20 +361,20 @@ catalog=MyCatalog
 db_name=bareos
 db_driver=postgresql
 db_user=bareos
-db_password=secret
-db_address=192.168.0.34
-db_port=5432
+db_password=postgresspass
+db_address=bareos-database.example.com
+db_port=0
 db_socket=
 db_type=PostgreSQL
 working_dir=/var/lib/bareos
 \end{commands}
 
-Now, run the Bareos database preparation scripts: 
+Now, run the Bareos database preparation scripts with : 
 \begin{commands}{Setup Bareos catalog database}
 su - postgres
-/usr/lib/bareos/scripts/create_bareos_database
-/usr/lib/bareos/scripts/make_bareos_tables
-/usr/lib/bareos/scripts/grant_bareos_privileges
+/usr/lib/bareos/scripts/create_bareos_database --host=bareos-database.example.com
+/usr/lib/bareos/scripts/make_bareos_tables --host=bareos-database.example.com
+/usr/lib/bareos/scripts/grant_bareos_privileges --host=bareos-database.example.com
 \end{commands}
 
 \subsubsection{MySQL}
