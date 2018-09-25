@@ -32,7 +32,7 @@ This might require some more manual configuration, a PostgreSQL example can be f
 Since Bareos \sinceVersion{dir}{dbconfig-common (Debian)}{14.2.0} the Debian (and Ubuntu) based packages support the \package{dbconfig-common} mechanism to create and update the Bareos database, according to the user choices.
 
 The first choice is, if \package{dbconfig-common} should be used at all.
-If you decide against it, the database must be configured manually, see \nameref{CatMaintenanceManualConfiguration}.
+If you decide against it, or want to use a remote database, the database must be configured manually, see \nameref{CatMaintenanceManualConfiguration}.
 
 If you decided to use \package{dbconfig-common}, the next question will only be asked, if more than one
 Bareos database backend (\package{bareos-database-*}) is installed.
@@ -51,7 +51,8 @@ Often, the default values are suitable.
 The \package{dbconfig-common} configuration (and credentials) is done by the \package{bareos-database-common} package.
 Settings are stored in the file \file{/etc/dbconfig-common/bareos-database-common.conf}.
 
-The Bareos database backend will get automatically configured in \file{/etc/bareos/bareos-dir.conf}.
+The Bareos database backend will get automatically configured in \file{/etc/bareos/bareos-dir.d/catalog/MyCatalog.conf}.
+If the Server is not running locally you need to specify \linkResourceDirective{Dir}{Catalog}{DB Address} in the catalog ressource.
 A later reconfiguration might require manual adapt changes.
 
 \warning{When using the PostgreSQL backend and updating to Bareos $<$ 14.2.3, it is necessary to manually grant database permissions (\command{grant_bareos_privileges}), normally by}
