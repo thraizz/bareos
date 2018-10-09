@@ -78,6 +78,7 @@ class WrongCredentialsException(Exception):
         msg = 'Username "%s" or password "%s" is wrong.' % (username,password)
         super(WrongCredentialsException, self).__init__(msg)
 
+@unittest.skipIf(os.environ.get('TRAVIS_PULL_REQUEST') != 'false', 'Pull requests are not tested.')
 class SeleniumTest(unittest.TestCase):
 
 
