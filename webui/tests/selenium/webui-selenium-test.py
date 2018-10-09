@@ -106,7 +106,7 @@ class SeleniumTest(unittest.TestCase):
         )
         self.logger = logging.getLogger()
 
-        if(os.environ.get('TRAVIS') == 'true'):
+        if(os.environ.get('BUILD_WEBUI') == 'true'):
             from sauceclient import SauceClient
             from   selenium.webdriver.remote.remote_connection import RemoteConnection
             self.desired_capabilities = {}
@@ -466,9 +466,14 @@ def get_env():
     sleeptime = os.environ.get('BAREOS_DELAY')
     if sleeptime:
         SeleniumTest.sleeptime = float(sleeptime)
-    if(os.environ.get('TRAVIS') == 'true'):
-            SeleniumTest.sauce_username = os.environ.get('SAUCE_USERNAME')
-            SeleniumTest.access_key = os.environ.get('SAUCE_ACCESS_KEY')
+    if(os.environ.get('BUILD_WEBUI') == 'true'):
+            sauce_username = os.environ.get('SAUCE_USERNAME')
+            access_key = os.environ.get('SAUCE_ACCESS_KEY')
+            if sauce_username and access_key:
+                SeleniumTest.sauce_username = sauce_username
+                SeleniumTest.access_key = access_key
+            else:
+                raise ValueError("SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables not set.")
 
 if __name__ == '__main__':
     get_env()
